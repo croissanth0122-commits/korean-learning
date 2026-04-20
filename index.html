@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Korean Learning - Flashcards</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #74b9ff, #a29bfe, #fd79a8);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        header { text-align: center; color: white; margin-bottom: 30px; }
+        .nav { display: flex; justify-content: center; gap:15px; margin-bottom:30px; }
+        .nav a { padding:10px 20px; background:white; border-radius:10px; text-decoration:none; font-weight:bold; color:#333; }
+        .nav a.active { background:#74b9ff; color:white; }
+        .card { background:white; padding:30px; border-radius:20px; text-align:center; margin-bottom:20px; }
+        .flashcard {
+            width:450px; height:280px; margin:20px auto;
+            background:#fff; border:3px solid #74b9ff; border-radius:20px;
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            font-size:28px; font-weight:bold; cursor:pointer; padding:20px; line-height:1.5;
+        }
+        .tip { color:#e17055; margin-top:8px; font-size:16px; font-weight:bold; }
+        .example { color:#555; margin-top:8px; font-size:16px; }
+        .btn { padding:12px 24px; border:none; border-radius:12px; color:white; background:#74b9ff; margin:5px; cursor:pointer; }
+        .progress-bar { width:100%; height:14px; background:#f1f1f1; border-radius:20px; margin:20px 0; }
+        .progress-fill { height:100%; background:linear-gradient(90deg,#00b894,#00cec9); border-radius:20px; transition:0.6s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header><h1>Korean Flashcards</h1></header>
+        <div class="nav">
+            <a href="index.html" class="active">Flashcards</a>
+            <a href="quiz.html">Quiz</a>
+            <a href="game.html">Game</a>
+        </div>
+        <div class="card">
+            <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+            <div id="progress-text" style="margin-bottom:15px;">0%</div>
+            <div class="flashcard" id="card">안녕하세요</div>
+            <button class="btn" onclick="prev()">← Prev</button>
+            <button class="btn" onclick="play()">🔊 Audio</button>
+            <button class="btn" onclick="next()">Next →</button>
+        </div>
+    </div>
+    <audio id="audio"></audio>
+    <script>
+        const words = [
+            { ko:"안녕하세요", cn:"你好", en:"Hello", ex:"안녕하세요, 저는 학생입니다.", tip:"安宁哈塞呦 → 打招呼" },
+            { ko:"고맙습니다", cn:"谢谢", en:"Thank you", ex:"도와주셔서 고맙습니다.", tip:"高吗思密达 → 感谢" },
+            { ko:"죄송합니다", cn:"对不起", en:"Sorry", ex:"늦어서 죄송합니다.", tip:"罪送哈密达 → 道歉" },
+            { ko:"예", cn:"是", en:"Yes", ex:"예, 알겠습니다.", tip:"短音耶 → 答应" },
+            { ko:"아니요", cn:"不是", en:"No", ex:"아니요, 괜찮습니다.", tip:"啊你呦 → 否定" },
+            { ko:"사랑해요", cn:"我爱你", en:"I love you", ex:"엄마, 사랑해요.", tip:"撒浪嘿呦 → 爱" },
+            { ko:"배고파요", cn:"我饿了", en:"I'm hungry", ex:"지금 배고파요.", tip:"肚子饿了" },
+            { ko:"잘 자요", cn:"晚安", en:"Good night", ex:"잘 자요.", tip:"好好睡" },
+            { ko:"학생", cn:"学生", en:"Student", ex:"저는 학생입니다.", tip:"学+生" },
+            { ko:"선생님", cn:"老师", en:"Teacher", ex:"선생님께 질문해요.", tip:"先生=老师" }
+        ];
+        let current=0;
+        const card=document.getElementById("card");
+        const prog=document.getElementById("progress");
+        const ptext=document.getElementById("progress-text");
+        function update(){
+            const w=words[current];
+            card.innerText=w.ko;
+            let per=Math.round(((current+1)/words.length)*100);
+            prog.style.width=per+"%";
+            ptext.innerText=per+"%";
+        }
+        card.addEventListener("click",()=>{
+            const w=words[current];
+            if(card.innerText===w.ko) card.innerHTML=`${w.cn}/${w.en}<br><span class=tip>💡${w.tip}</span><br><span class=example>${w.ex}</span>`;
+            else update();
+        });
+        function next(){current=(current+1)%words.length; update();}
+        function prev(){current=(current-1+words.length)%words.length; update();}
+        function play(){
+            const word=words[current].ko;
+            document.getElementById("audio").src=`https://dict.naver.com/api/tts?query=${encodeURIComponent(word)}&language=ko`;
+            document.getElementById("audio").play();
+        }
+        update();
+    </script>
+</body>
+</html>
