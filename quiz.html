@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Korean Quiz</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",sans-serif;}
+        body{background:linear-gradient(135deg,#74b9ff,#a29bfe,#fd79a8);min-height:100vh;padding:40px 20px;}
+        .container{max-width:800px;margin:0 auto;}
+        header{text-align:center;color:white;margin-bottom:30px;}
+        .nav{display:flex;justify-content:center;gap:15px;margin-bottom:30px;flex-wrap:wrap;}
+        .nav a{padding:10px 20px;background:white;border-radius:10px;text-decoration:none;font-weight:bold;color:#333;}
+        .nav a.active{background:#fd79a8;color:white;}
+        
+        .card{background:white;padding:30px;border-radius:20px;text-align:center;}
+        .progress-text{font-size:16px;color:#666;margin-bottom:10px;}
+        .question{font-size:20px;font-weight:bold;margin:20px 0;}
+        
+        .option{
+            background:#f1f2f6;padding:14px;margin:10px 0;
+            border-radius:10px;cursor:pointer;transition:0.2s;
+            font-size:16px;
+        }
+        .option:hover{background:#dfe4ea;}
+        .correct{background:#00b894;color:white;}
+        .wrong{background:#ff6b6b;color:white;}
+        
+        .nav-buttons{margin-top:30px;display:flex;justify-content:center;gap:15px;flex-wrap:wrap;}
+        .nav-buttons button{
+            padding:12px 24px;border:none;border-radius:12px;
+            background:#74b9ff;color:white;font-weight:bold;cursor:pointer;
+        }
+        .nav-buttons button:disabled{background:#ccc;cursor:not-allowed;}
+        .score{font-size:24px;font-weight:bold;color:#00b894;margin-top:20px;}
+        .finish{font-size:22px;color:#e17055;font-weight:bold;margin-top:20px;}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header><h1>Korean Vocabulary Quiz</h1></header>
+        <div class="nav">
+            <a href="index.html">Flashcards</a>
+            <a href="practice.html">Practice</a>
+            <a href="quiz.html" class="active">Quiz</a>
+            <a href="wrong-list.html">Wrong Questions</a>
+            <a href="dashboard.html">Dashboard</a>
+        </div>
+
+        <div class="card">
+            <div class="progress-text" id="progress">Question 1 / 10</div>
+            <div class="question" id="question"></div>
+            <div id="options"></div>
+            <div class="score" id="score"></div>
+            <div id="finish"></div>
+            
+            <div class="nav-buttons">
+                <button id="prev" onclick="prevQuestion()">Previous</button>
+                <button id="next" onclick="nextQuestion()">Next</button>
+                <button id="restart" onclick="restartQuiz()" style="display:none;background:#e17055">Restart Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quiz = [
+            { q: "What does 안녕하세요 mean?", a: "Hello", o: ["Hello","Thank you","Sorry","Good night"] },
+            { q: "What does 고맙습니다 mean?", a: "Thank you", o: ["Yes","Thank you","No","I love you"] },
+            { q: "What does 죄송합니다 mean?", a: "Sorry", o: ["Good night","Thank you","Sorry","Hungry"] },
+            { q: "What does 예 mean?", a: "Yes", o: ["No","Yes","Hello","Teacher"] },
+            { q: "What does 아니요 mean?", a: "No", o: ["Yes","No","Student","Good night"] },
+            { q: "What does 사랑해요 mean?", a: "I love you", o: ["I'm hungry","I love you","Hello","Sorry"] },
+            { q: "What does 배고파요 mean?", a: "I'm hungry", o: ["Good night","I'm hungry","Thank you","Yes"] },
+            { q: "What does 잘 자요 mean?", a: "Good night", o: ["Good night","Hello","Teacher","Hungry"] },
+            { q: "What does 학생 mean?", a: "Student", o: ["Teacher","Student","Hello","Sorry"] },
+            { q: "What does 선생님 mean?", a: "Teacher", o: ["Student","Teacher","I love you","No"] }
+        ];
+
+        let current = 0;
+        let score = 0;
+        let answered = false;
+        let wrongList = JSON.parse(localStorage.getItem("wrongList")) || [];
+
+        // 加载题目
+        function loadQuestion() {
+            const q = quiz[current];
+            document.getElementById("progress").innerText = `Question ${current + 1} / ${quiz.length}`;
+            document.getElementById("question").innerText = q.q;
+            const optionsEl = document.getElementById("options");
+            optionsEl.innerHTML = "";
+            document.getElementById("finish").innerText = "";
+            answered = false;
+
+            q.o.forEach(option => {
+                const div = document.createElement("div");
+                div.className = "option";
+                div.innerText = option;
+                div.onclick = () => {
+                    if (answered) return;
+                    answered = true;
+                    
+                    if (div.innerText === q.a) {
+                        div.classList.add("correct");
+                        score++;
+                    } else {
+                        div.classList.add("wrong");
+                        addToWrong(quiz[current]);
+                        // 显示正确答案
+                        showCorrectAnswer();
+                    }
+                    document.getElementById("score").innerText = `Score: ${score}`;
+                    updateButtons();
+                    
+                    // 最后一题答完显示完成
+                    if(current === quiz.length -1){
+                        showFinish();
+                    }
+                };
+                optionsEl.appendChild(div);
+            });
+            updateButtons();
+        }
+
+        // 显示正确答案
+        function showCorrectAnswer(){
+            const options = document.querySelectorAll(".option");
+            options.forEach(opt => {
+                if(opt.innerText === quiz[current].a){
+                    opt.classList.add("correct");
+                }
+            });
+        }
+
+        // 加入错题本
+        function addToWrong(question) {
+            const isExist = wrongList.some(item => item.q === question.q);
+            if (!isExist) {
+                wrongList.push(question);
+                localStorage.setItem("wrongList", JSON.stringify(wrongList));
+            }
+        }
+
+        // 更新按钮状态
+        function updateButtons() {
+            document.getElementById("prev").disabled = current === 0;
+            
+            // 最后一题隐藏Next，显示重启
+            if(current === quiz.length -1 && answered){
+                document.getElementById("next").style.display = "none";
+                document.getElementById("restart").style.display = "inline-block";
+            }else{
+                document.getElementById("next").style.display = "inline-block";
+                document.getElementById("restart").style.display = "none";
+            }
+        }
+
+        // 下一题
+        function nextQuestion() {
+            if (current < quiz.length - 1) {
+                current++;
+                loadQuestion();
+            }
+        }
+
+        // 上一题
+        function prevQuestion() {
+            if (current > 0) {
+                current--;
+                loadQuestion();
+            }
+        }
+
+        // 显示测验完成
+        function showFinish(){
+            document.getElementById("finish").innerText = `🎉 Quiz Completed! Final Score: ${score}/${quiz.length}`;
+            document.getElementById("finish").classList.add("finish");
+        }
+
+        // 重新开始测验
+        function restartQuiz(){
+            current = 0;
+            score = 0;
+            answered = false;
+            document.getElementById("score").innerText = "";
+            loadQuestion();
+        }
+
+        // 初始化
+        loadQuestion();
+    </script>
+</body>
+</html>
