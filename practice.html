@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Practice</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",sans-serif;}
+        body{background:linear-gradient(135deg,#74b9ff,#a29bfe,#fd79a8);min-height:100vh;padding:40px 20px;}
+        .container{max-width:800px;margin:0 auto;}
+        header{text-align:center;color:white;margin-bottom:30px;}
+        .nav{display:flex;justify-content:center;gap:15px;margin-bottom:30px;flex-wrap:wrap;}
+        .nav a{padding:10px 20px;background:white;border-radius:10px;text-decoration:none;font-weight:bold;color:#333;transition:0.2s;}
+        .nav a.active{background:#fd79a8;color:white;}
+        .nav a:hover{opacity:0.9;}
+        
+        .card{background:white;padding:40px;border-radius:20px;text-align:center;}
+        .question{font-size:24px;margin-bottom:20px;font-weight:bold;}
+        input{
+            padding:14px 20px;width:70%;font-size:16px;
+            border:2px solid #ddd;border-radius:10px;
+            text-align:center;outline:none;
+        }
+        input:focus{border-color:#74b9ff;}
+        .btn{
+            padding:14px 22px;background:#74b9ff;color:white;
+            border:none;border-radius:10px;font-weight:bold;
+            cursor:pointer;margin-top:15px;
+        }
+        .feedback{margin-top:20px;font-size:18px;font-weight:bold;}
+        .correct{color:#00b894;}
+        .wrong{color:#ff6b6b;}
+        .answer{color:#333;margin-top:10px;}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header><h1>Korean Practice</h1></header>
+        <div class="nav">
+            <a href="index.html">Flashcards</a>
+            <a href="practice.html" class="active">Practice</a>
+            <a href="quiz.html">Quiz</a>
+            <a href="wrong-list.html">Wrong Questions</a>
+            <a href="dashboard.html">Dashboard</a>
+        </div>
+
+        <div class="card">
+            <div class="question" id="question">안녕하세요 means?</div>
+            <input type="text" id="input" placeholder="Type your answer">
+            <button class="btn" onclick="checkAnswer()">Submit Answer</button>
+            <div class="feedback" id="feedback"></div>
+            <div class="answer" id="answer"></div>
+            <button class="btn" onclick="nextQuestion()" style="background:#a29bfe;display:none;margin-left:10px;" id="nextBtn">Next Question</button>
+        </div>
+    </div>
+
+    <script>
+        const list = [
+            { q: "안녕하세요 means?", a: "hello" },
+            { q: "고맙습니다 means?", a: "thank you" },
+            { q: "죄송합니다 means?", a: "sorry" },
+            { q: "예 means?", a: "yes" },
+            { q: "아니요 means?", a: "no" },
+            { q: "사랑해요 means?", a: "i love you" },
+            { q: "배고파요 means?", a: "i'm hungry" },
+            { q: "잘 자요 means?", a: "good night" },
+            { q: "학생 means?", a: "student" },
+            { q: "선생님 means?", a: "teacher" }
+        ];
+
+        let current = 0;
+
+        function loadQ() {
+            document.getElementById("question").innerText = list[current].q;
+            document.getElementById("input").value = "";
+            document.getElementById("feedback").innerText = "";
+            document.getElementById("answer").innerText = "";
+            document.getElementById("nextBtn").style.display = "none";
+            document.getElementById("input").disabled = false;
+        }
+
+        function checkAnswer() {
+            const input = document.getElementById("input").value.trim().toLowerCase();
+            const ans = list[current].a;
+            const fb = document.getElementById("feedback");
+            const ansText = document.getElementById("answer");
+
+            if (input === ans) {
+                fb.innerText = "✅ Correct!";
+                fb.className = "feedback correct";
+            } else {
+                fb.innerText = "❌ Wrong!";
+                fb.className = "feedback wrong";
+                ansText.innerText = `Correct answer: ${ans}`;
+            }
+
+            document.getElementById("input").disabled = true;
+            document.getElementById("nextBtn").style.display = "inline-block";
+        }
+
+        function nextQuestion() {
+            if (current < list.length - 1) {
+                current++;
+                loadQ();
+            } else {
+                alert("🎉 Practice completed!");
+                current = 0;
+                loadQ();
+            }
+        }
+
+        loadQ();
+    </script>
+</body>
+</html>

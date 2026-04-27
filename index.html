@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Flashcards</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",sans-serif;}
+        body{background:linear-gradient(135deg,#74b9ff,#a29bfe,#fd79a8);min-height:100vh;padding:40px 20px;}
+        .container{max-width:800px;margin:0 auto;}
+        header{text-align:center;color:white;margin-bottom:30px;}
+        .nav{display:flex;justify-content:center;gap:15px;margin-bottom:30px;flex-wrap:wrap;}
+        .nav a{padding:10px 20px;background:white;border-radius:10px;text-decoration:none;font-weight:bold;color:#333;transition:0.2s;}
+        .nav a.active{background:#fd79a8;color:white;}
+        .nav a:hover{opacity:0.9;}
+        
+        .flashcard{
+            width:100%;height:300px;background:white;border-radius:20px;
+            display:flex;align-items:center;justify-content:center;
+            font-size:28px;font-weight:bold;cursor:pointer;
+            box-shadow:0 10px 30px rgba(0,0,0,0.1);
+            transition:transform 0.3s;
+            margin-bottom:20px;
+        }
+        .flashcard:hover{transform:scale(1.02);}
+        .nav-buttons{display:flex;justify-content:center;gap:15px;}
+        .nav-buttons button{
+            padding:12px 24px;border:none;border-radius:12px;
+            background:#74b9ff;color:white;font-weight:bold;cursor:pointer;
+        }
+        .nav-buttons button:disabled{background:#ccc;cursor:not-allowed;}
+        .count{text-align:center;color:white;margin:10px 0;font-size:18px;}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header><h1>Korean Flashcards</h1></header>
+        <div class="nav">
+            <a href="index.html" class="active">Flashcards</a>
+            <a href="practice.html">Practice</a>
+            <a href="quiz.html">Quiz</a>
+            <a href="wrong-list.html">Wrong Questions</a>
+            <a href="dashboard.html">Dashboard</a>
+        </div>
+
+        <div class="count" id="count">Card 1 / 10</div>
+        <div class="flashcard" id="card" onclick="flipCard()">안녕하세요</div>
+        
+        <div class="nav-buttons">
+            <button id="prev" onclick="prevCard()">Previous</button>
+            <button id="next" onclick="nextCard()">Next</button>
+        </div>
+    </div>
+
+    <script>
+        const words = [
+            { ko: "안녕하세요", cn: "Hello" },
+            { ko: "고맙습니다", cn: "Thank you" },
+            { ko: "죄송합니다", cn: "Sorry" },
+            { ko: "예", cn: "Yes" },
+            { ko: "아니요", cn: "No" },
+            { ko: "사랑해요", cn: "I love you" },
+            { ko: "배고파요", cn: "I'm hungry" },
+            { ko: "잘 자요", cn: "Good night" },
+            { ko: "학생", cn: "Student" },
+            { ko: "선생님", cn: "Teacher" }
+        ];
+
+        let current = 0;
+        let isFlipped = false;
+
+        function loadCard() {
+            document.getElementById("card").innerText = words[current].ko;
+            document.getElementById("count").innerText = `Card ${current+1} / ${words.length}`;
+            isFlipped = false;
+            updateButtons();
+        }
+
+        function flipCard() {
+            if (isFlipped) {
+                document.getElementById("card").innerText = words[current].ko;
+            } else {
+                document.getElementById("card").innerText = words[current].cn;
+            }
+            isFlipped = !isFlipped;
+        }
+
+        function nextCard() {
+            if (current < words.length - 1) {
+                current++;
+                loadCard();
+            }
+        }
+
+        function prevCard() {
+            if (current > 0) {
+                current--;
+                loadCard();
+            }
+        }
+
+        function updateButtons() {
+            document.getElementById("prev").disabled = current === 0;
+        }
+
+        loadCard();
+    </script>
+</body>
+</html>
