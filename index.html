@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Flashcards</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",sans-serif;}
+        body{background:linear-gradient(135deg,#74b9ff,#a29bfe,#fd79a8);min-height:100vh;padding:40px 20px;}
+        .container{max-width:800px;margin:0 auto;}
+        header{text-align:center;color:white;margin-bottom:30px;}
+        .nav{display:flex;justify-content:center;gap:15px;margin-bottom:30px;flex-wrap:wrap;}
+        .nav a{padding:10px 20px;background:white;border-radius:10px;text-decoration:none;font-weight:bold;color:#333;transition:0.2s;}
+        .nav a.active{background:#fd79a8;color:white;}
+        .nav a:hover{opacity:0.9;}
+        
+        .flashcard{
+            width:100%;min-height:360px;background:white;border-radius:20px;padding:30px;
+            display:flex;flex-direction:column;align-items:center;justify-content:center;
+            font-size:28px;font-weight:bold;cursor:pointer;
+            box-shadow:0 10px 30px rgba(0,0,0,0.1);
+            transition:transform 0.3s;
+            margin-bottom:20px;gap:12px;text-align:center;
+        }
+        .roman{font-size:18px;color:#666;font-weight:normal;}
+        .tip{font-size:16px;color:#fd79a8;font-weight:normal;margin-top:10px;line-height:1.5;}
+        .voice-btn{
+            background:#74b9ff;color:white;border:none;padding:8px 16px;
+            border-radius:10px;font-weight:bold;cursor:pointer;margin-top:10px;
+        }
+        .flashcard:hover{transform:scale(1.02);}
+        .nav-buttons{display:flex;justify-content:center;gap:15px;}
+        .nav-buttons button{
+            padding:12px 24px;border:none;border-radius:12px;
+            background:#74b9ff;color:white;font-weight:bold;cursor:pointer;
+        }
+        .nav-buttons button:disabled{background:#ccc;cursor:not-allowed;}
+        .count{text-align:center;color:white;margin:10px 0;font-size:18px;}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header><h1>Korean Flashcards</h1></header>
+        <div class="nav">
+            <a href="index.html" class="active">Flashcards</a>
+            <a href="practice.html">Practice</a>
+            <a href="quiz.html">Quiz</a>
+            <a href="wrong-list.html">Wrong Questions</a>
+            <a href="dashboard.html">Dashboard</a>
+        </div>
+
+        <div class="count" id="count">Card 1 / 10</div>
+        <div class="flashcard" id="card" onclick="flipCard()"></div>
+        
+        <div class="nav-buttons">
+            <button id="prev" onclick="prevCard()">Previous</button>
+            <button id="next" onclick="nextCard()">Next</button>
+        </div>
+    </div>
+
+    <script>
+        const words = [
+            { ko: "안녕하세요", roman: "An-nyeong-ha-se-yo", cn: "Hello", tip: "安安你好～轻松开口打招呼" },
+            { ko: "고맙습니다", roman: "Go-map-seum-ni-da", cn: "Thank you", tip: "高（go）举感谢之心，正式表达谢意" },
+            { ko: "죄송합니다", roman: "Joe-song-ham-ni-da", cn: "Sorry", tip: "揪（joe）心道歉，非常礼貌的说法" },
+            { ko: "예", roman: "Ye", cn: "Yes", tip: "短音耶，干脆利落表肯定" },
+            { ko: "아니요", roman: "A-ni-yo", cn: "No", tip: "啊～你（ni）别这样，表否定" },
+            { ko: "사랑해요", roman: "Sa-rang-hae-yo", cn: "I love you", tip: "撒浪嘿，韩剧高频告白句" },
+            { ko: "배고파요", roman: "Bae-go-pa-yo", cn: "I'm hungry", tip: "背（bae）包饿了，轻松说肚子饿" },
+            { ko: "잘 자요", roman: "Jal ja-yo", cn: "Good night", tip: "炸（jal）酱面晚安，轻松道别" },
+            { ko: "학생", roman: "Hak-saeng", cn: "Student", tip: "学生要学（hak）知识，好记" },
+            { ko: "선생님", roman: "Seon-saeng-nim", cn: "Teacher", tip: "先生（seon）您，尊称老师" }
+        ];
+
+        let current = 0;
+        let isFlipped = false;
+
+        function loadCard() {
+            const w = words[current];
+            document.getElementById("card").innerHTML = `
+                ${w.ko}
+                <div class="roman">${w.roman}</div>
+                <button class="voice-btn" onclick="playVoice('${w.ko}');event.stopPropagation()">🔊 Play Voice</button>
+                <div class="tip">💡 ${w.tip}</div>
+            `;
+            document.getElementById("count").innerText = `Card ${current+1} / ${words.length}`;
+            isFlipped = false;
+            updateButtons();
+        }
+
+        // ✅ 绝对可用的浏览器原生语音
+        function playVoice(text) {
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = 'ko-KR';
+            u.rate = 0.9;
+            window.speechSynthesis.speak(u);
+        }
+
+        function flipCard() {
+            const w = words[current];
+            if (isFlipped) {
+                document.getElementById("card").innerHTML = `
+                    ${w.ko}
+                    <div class="roman">${w.roman}</div>
+                    <button class="voice-btn" onclick="playVoice('${w.ko}');event.stopPropagation()">🔊 Play Voice</button>
+                    <div class="tip">💡 ${w.tip}</div>
+                `;
+            } else {
+                document.getElementById("card").innerHTML = `
+                    ${w.cn}
+                    <div class="roman">${w.roman}</div>
+                `;
+            }
+            isFlipped = !isFlipped;
+        }
+
+        function nextCard() {
+            if (current < words.length - 1) {
+                current++;
+                loadCard();
+            }
+        }
+
+        function prevCard() {
+            if (current > 0) {
+                current--;
+                loadCard();
+            }
+        }
+
+        function updateButtons() {
+            document.getElementById("prev").disabled = current === 0;
+        }
+
+        loadCard();
+    </script>
+</body>
+</html>
